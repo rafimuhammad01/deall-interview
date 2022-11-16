@@ -3,11 +3,12 @@ package service
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/rafimuhammad01/auth-service/internal/domain"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type JWT struct {
