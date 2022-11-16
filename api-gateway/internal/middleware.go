@@ -15,6 +15,10 @@ var (
 	ErrForbidden     = fmt.Errorf("forbidden access")
 )
 
+const (
+	UserDataKey = "UserData"
+)
+
 type AuthMiddleware struct {
 }
 
@@ -55,34 +59,35 @@ func (a *AuthMiddleware) VerifyToken(r *http.Request) (*jwt.Token, error) {
 
 func (a *AuthMiddleware) TokenAuthMiddleware(role ...int) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := a.GrantAccess(c.Request, role...)
+		payload, err := a.GrantAccess(c.Request, role...)
 		if err != nil {
 			errStruct := HandleError([]error{err})
 			c.JSON(errStruct.Code, errStruct)
 			c.Abort()
 			return
 		}
+		c.Set(UserDataKey, payload)
 		c.Next()
 	}
 }
 
-func (a *AuthMiddleware) GrantAccess(r *http.Request, expectedRole ...int) error {
+func (a *AuthMiddleware) GrantAccess(r *http.Request, expectedRole ...int) (map[string]interface{}, error) {
 	token, err := a.VerifyToken(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	payload, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return fmt.Errorf("[%w] internal error when claims jwt token", ErrInvalidToken)
+		return nil, fmt.Errorf("[%w] internal error when claims jwt token", ErrInvalidToken)
 	}
 
 	role := int(payload["role"].(float64))
 	for _, v := range expectedRole {
 		if role == v {
-			return nil
+			return payload, nil
 		}
 	}
 
-	return fmt.Errorf("[%w] forbidden acces for role %s", ErrForbidden, roles[role])
+	return nil, fmt.Errorf("[%w] forbidden acces for role %s", ErrForbidden, roles[role])
 }

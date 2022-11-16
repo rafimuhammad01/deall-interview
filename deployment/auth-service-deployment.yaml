@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: auth-service
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: auth-service
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/db: "true"
+        io.kompose.service: auth-service
+    spec:
+      containers:
+        - env:
+            - name: JWT_EXPIRED_AT
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_EXPIRED_AT
+                  name: auth-service--env
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_SECRET
+                  name: auth-service--env
+            - name: MONGO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_DB_NAME
+                  name: auth-service--env
+            - name: MONGO_DB_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_DB_URI
+                  name: auth-service--env
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PORT
+                  name: auth-service--env
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_HOST
+                  name: auth-service--env
+            - name: REDIS_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_PASSWORD
+                  name: auth-service--env
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_PORT
+                  name: auth-service--env
+          image: auth-service
+          name: auth-service
+          ports:
+            - containerPort: 8082
+          resources: {}
+      restartPolicy: Always
+status: {}

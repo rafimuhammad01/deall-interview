@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -75,7 +76,8 @@ func (u *User) GetAll(c *gin.Context) {
 }
 
 func (u *User) GetByID(c *gin.Context) {
-	ID := c.Param("id")
+	userData, _ := c.Get(UserDataKey)
+	ID := userData.(map[string]interface{})["user_id"].(string)
 	url := fmt.Sprintf("%s/api/v1/user/%s", u.BaseURL, ID)
 
 	resp, err := http.Get(url)
@@ -107,6 +109,75 @@ func (u *User) GetByID(c *gin.Context) {
 	}
 
 	c.JSON(resp.StatusCode, respBody)
+}
+
+func (u *User) CreateAdmin(c *gin.Context) {
+	url := fmt.Sprintf("%s/api/v1/user", u.BaseURL)
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Default().Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	var reqBody map[string]interface{}
+	err = json.Unmarshal(body, &reqBody)
+	if err != nil {
+		log.Default().Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	reqBody["role"] = 1
+
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		log.Default().Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	reqBodyBuffer := bytes.NewBuffer(reqBodyByte)
+	reqBodyReadClose := io.NopCloser(reqBodyBuffer)
+
+	resp, err:= u.helper.Post(url, reqBodyReadClose)
+	if err != nil {
+		log.Default().Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Default().Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	var respBody map[string]interface{}
+	err = json.Unmarshal(body, &respBody)
+	if err != nil {
+		log.Default().Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	c.JSON(resp.StatusCode, respBody)
+
+
 }
 
 func (u *User) Create(c *gin.Context) {

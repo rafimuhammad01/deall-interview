@@ -1,0 +1,16 @@
+apiVersion: v1
+data:
+  JWT_EXPIRED_AT: "60"
+  JWT_SECRET: TmzdDWsq
+  MONGO_DB_NAME: deall-interview
+  MONGO_DB_URI: mongodb://rafi:testrafipassword@mongodb:27017
+  PORT: "8082"
+  REDIS_HOST: cache
+  REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  REDIS_PORT: "6379"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: auth-service-auth-service--env
+  name: auth-service--env

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api-gateway
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api-gateway
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/db: "true"
+        io.kompose.service: api-gateway
+    spec:
+      containers:
+        - env:
+            - name: AUTH_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTH_BASE_URL
+                  name: api-gateway--env
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_SECRET
+                  name: api-gateway--env
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PORT
+                  name: api-gateway--env
+            - name: USER_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: USER_BASE_URL
+                  name: api-gateway--env
+          image: api-gateway
+          name: api-gateway
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+status: {}

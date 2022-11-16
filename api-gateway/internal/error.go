@@ -40,7 +40,7 @@ func HandleError(arrErr []error) ErrorStruct {
 		statusCode = http.StatusUnauthorized
 		message = ErrInvalidHeader.Error()
 	} else if errors.Is(arrErr[0], ErrForbidden) {
-		statusCode = http.StatusNotFound
+		statusCode = http.StatusForbidden
 		message = ErrForbidden.Error()
 	}
 

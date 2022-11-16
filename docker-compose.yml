@@ -3,31 +3,37 @@ services:
   user-service:
     build: ./user-service/
     ports:
-      - 8081:8081 
+      - "8081:8081"
     depends_on:
       - mongodb
     networks:
       - db
+    env_file:
+      - ./user-service/.env
 
   auth-service:
     build: ./auth-service/
     ports:
-      - 8082:8082 
+      - "8082:8082"
     depends_on:
       - mongodb
       - cache
     networks:
       - db
+    env_file:
+      - ./auth-service/.env
 
   api-gateway:
     build: ./api-gateway/
     ports:
-      - 8080:8080
+      - "8080:8080"
     depends_on:
       - user-service
       - auth-service
     networks:
       - db
+    env_file:
+      - ./api-gateway/.env
 
   mongodb:
     image: mongo:5.0
@@ -35,7 +41,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=rafi
       - MONGO_INITDB_ROOT_PASSWORD=testrafipassword
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - mongodb_data_container:/data/db
     networks:

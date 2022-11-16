@@ -27,9 +27,10 @@ func (r *Routes) Init() {
 	auth.POST("/refresh", r.authHandler.RefreshToken)
 
 	users := r.ginRouter.Group("/api/v1/user")
-	users.GET("", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin, internal.RoleUser), r.userHandler.GetAll)
+	users.GET("", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin), r.userHandler.GetAll)
 	users.POST("", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin), r.userHandler.Create)
-	users.GET("/:id", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin, internal.RoleUser), r.userHandler.GetByID)
+	users.GET("/me", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin, internal.RoleUser), r.userHandler.GetByID)
 	users.PUT("/:id", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin), r.userHandler.Update)
 	users.DELETE("/:id", r.authMiddleware.TokenAuthMiddleware(internal.RoleAdmin), r.userHandler.Delete)
+	users.POST("/create-admin", r.userHandler.CreateAdmin)
 }
